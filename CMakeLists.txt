@@ -1,252 +1,196 @@
-cmake_minimum_required( VERSION 3.10      )
+#cmake_minimum_required( VERSION 3.10      )
 
-#-------- project ---------------------------------------------------
-project( FreeImage    LANGUAGES CXX   VERSION 0.1.1   )
+##-------- project ---------------------------------------------------
+#project( FreeImage    LANGUAGES CXX C  VERSION 0.1.1   )
 
-set( CMAKE_C_STANDARD 90 )
-set( CMAKE_CXX_STANDARD 11 )
+cmake_minimum_required(VERSION 3.16.6)
+project(FreeImage VERSION 3.18.0)
 
-#-------- sources ---------------------------------------------------
-set( cpp_INCLUDES freeimage/Source freeimage/Source/Metadata freeimage/Source/FreeImageToolkit freeimage/Source/ZLib )
-set( cpp_SOURCES freeimage/Source/FreeImage/BitmapAccess.cpp freeimage/Source/FreeImage/ColorLookup.cpp freeimage/Source/FreeImage/FreeImage.cpp freeimage/Source/FreeImage/FreeImageC.c freeimage/Source/FreeImage/FreeImageIO.cpp freeimage/Source/FreeImage/GetType.cpp freeimage/Source/FreeImage/MemoryIO.cpp freeimage/Source/FreeImage/PixelAccess.cpp freeimage/Source/FreeImage/J2KHelper.cpp freeimage/Source/FreeImage/MNGHelper.cpp freeimage/Source/FreeImage/Plugin.cpp freeimage/Source/FreeImage/PSDParser.cpp freeimage/Source/FreeImage/TIFFLogLuv.cpp freeimage/Source/FreeImage/Conversion.cpp freeimage/Source/FreeImage/Conversion16_555.cpp freeimage/Source/FreeImage/Conversion16_565.cpp freeimage/Source/FreeImage/Conversion24.cpp freeimage/Source/FreeImage/Conversion32.cpp freeimage/Source/FreeImage/Conversion4.cpp freeimage/Source/FreeImage/Conversion8.cpp freeimage/Source/FreeImage/ConversionFloat.cpp freeimage/Source/FreeImage/ConversionRGB16.cpp freeimage/Source/FreeImage/ConversionRGBA16.cpp freeimage/Source/FreeImage/ConversionRGBAF.cpp freeimage/Source/FreeImage/ConversionRGBF.cpp freeimage/Source/FreeImage/ConversionType.cpp freeimage/Source/FreeImage/ConversionUINT16.cpp freeimage/Source/FreeImage/Halftoning.cpp freeimage/Source/FreeImage/tmoColorConvert.cpp freeimage/Source/FreeImage/tmoDrago03.cpp freeimage/Source/FreeImage/tmoFattal02.cpp freeimage/Source/FreeImage/tmoReinhard05.cpp freeimage/Source/FreeImage/ToneMapping.cpp freeimage/Source/FreeImage/LFPQuantizer.cpp freeimage/Source/FreeImage/NNQuantizer.cpp freeimage/Source/FreeImage/WuQuantizer.cpp freeimage/Source/FreeImage/CacheFile.cpp freeimage/Source/FreeImage/MultiPage.cpp freeimage/Source/FreeImage/ZLibInterface.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/DeprecationManager/Deprecated.cpp freeimage/Source/DeprecationManager/DeprecationMgr.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/Metadata/Exif.cpp freeimage/Source/Metadata/FIRational.cpp freeimage/Source/Metadata/FreeImageTag.cpp freeimage/Source/Metadata/IPTC.cpp freeimage/Source/Metadata/TagConversion.cpp freeimage/Source/Metadata/TagLib.cpp freeimage/Source/Metadata/XTIFF.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/FreeImageToolkit/Background.cpp freeimage/Source/FreeImageToolkit/BSplineRotate.cpp freeimage/Source/FreeImageToolkit/Channels.cpp freeimage/Source/FreeImageToolkit/ClassicRotate.cpp freeimage/Source/FreeImageToolkit/Colors.cpp freeimage/Source/FreeImageToolkit/CopyPaste.cpp freeimage/Source/FreeImageToolkit/Display.cpp freeimage/Source/FreeImageToolkit/Flip.cpp freeimage/Source/FreeImageToolkit/JPEGTransform.cpp freeimage/Source/FreeImageToolkit/MultigridPoissonSolver.cpp freeimage/Source/FreeImageToolkit/Rescale.cpp freeimage/Source/FreeImageToolkit/Resize.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/ZLib/adler32.c freeimage/Source/ZLib/compress.c freeimage/Source/ZLib/crc32.c freeimage/Source/ZLib/deflate.c freeimage/Source/ZLib/gzclose.c freeimage/Source/ZLib/gzlib.c freeimage/Source/ZLib/gzread.c freeimage/Source/ZLib/gzwrite.c freeimage/Source/ZLib/infback.c freeimage/Source/ZLib/inffast.c freeimage/Source/ZLib/inflate.c freeimage/Source/ZLib/inftrees.c freeimage/Source/ZLib/trees.c freeimage/Source/ZLib/uncompr.c freeimage/Source/ZLib/zutil.c )
 
-include( "Options.cmake" )
+set(CMAKE_C_STANDARD 90)
+set(CMAKE_CXX_STANDARD 98)
 
-if( IV_FREEIMAGE_PNG )
-	
-	set( cpp_INCLUDES ${cpp_INCLUDES} freeimage/Source/LibPNG )
-	set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/FreeImage/PluginPNG.cpp )
-	set( cpp_SOURCES ${cpp_SOURCES} freeimage/Source/LibPNG/png.c freeimage/Source/LibPNG/pngerror.c freeimage/Source/LibPNG/pngget.c freeimage/Source/LibPNG/pngmem.c freeimage/Source/LibPNG/pngpread.c freeimage/Source/LibPNG/pngread.c freeimage/Source/LibPNG/pngrio.c freeimage/Source/LibPNG/pngrtran.c freeimage/Source/LibPNG/pngrutil.c freeimage/Source/LibPNG/pngset.c freeimage/Source/LibPNG/pngtrans.c freeimage/Source/LibPNG/pngwio.c freeimage/Source/LibPNG/pngwrite.c freeimage/Source/LibPNG/pngwtran.c freeimage/Source/LibPNG/pngwutil.c )
-	
+# LibJXR
+add_compile_definitions(DISABLE_PERF_MEASUREMENT)
+# OpenJPEG
+add_compile_definitions(OPJ_STATIC)
+if(WIN32)
+        # __declspec(dllexport) or __declspec(dllimport) for LibRawLite
+        add_compile_definitions(LIBRAW_NODLL)
+        # __declspec(dllexport) or __declspec(dllimport) for FreeImage
+        add_compile_definitions(FREEIMAGE_EXPORTS)
 else()
-	
-	set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPNG.cpp )
-	
+        # LibRaw
+        add_compile_definitions(NO_LCMS)
+        # LibJXR
+        add_compile_definitions(__ANSI__)
 endif()
 
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginBMP.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginICO.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginJPEG.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginJNG.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginKOALA.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginIFF.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginMNG.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPNM.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPCD.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPCX.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginRAS.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginTARGA.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginTIFF.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginWBMP.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPSD.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginCUT.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginXBM.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginXPM.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginDDS.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginGIF.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginHDR.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginG3.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginSGI.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginEXR.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginJ2K.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginJP2.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPFM.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginPICT.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginRAW.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginWEBP.cpp )
-set( cpp_SOURCES ${cpp_SOURCES} substitutions/PluginJXR.cpp )
+add_definitions( -DFREEIMAGE_LIB )
+
+#set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+if(MSVC)
+    set(CMAKE_DEBUG_POSTFIX "d")
+endif()
+
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/../${PROJECT_NAME}_${CMAKE_CXX_COMPILER_VERSION}_install)
+
+# copy the directores from Source/Makefile.srcs
+include_directories(./ Source Source/Metadata Source/FreeImageToolkit Source/LibJPEG Source/LibPNG Source/LibTIFF4 Source/ZLib Source/LibOpenJPEG Source/OpenEXR Source/OpenEXR/Half Source/OpenEXR/Iex Source/OpenEXR/IlmImf Source/OpenEXR/IlmThread Source/OpenEXR/Imath Source/OpenEXR/IexMath Source/LibRawLite Source/LibRawLite/dcraw Source/LibRawLite/internal Source/LibRawLite/libraw Source/LibRawLite/src Source/LibWebP Source/LibJXR Source/LibJXR/common/include Source/LibJXR/image/sys Source/LibJXR/jxrgluelib)
+
+# copy the path of source files from Source/Makefile.srcs
+set(SOURCE_FILES ./Source/FreeImage/BitmapAccess.cpp ./Source/FreeImage/ColorLookup.cpp ./Source/FreeImage/ConversionRGBA16.cpp ./Source/FreeImage/ConversionRGBAF.cpp ./Source/FreeImage/FreeImage.cpp ./Source/FreeImage/FreeImageC.c ./Source/FreeImage/FreeImageIO.cpp ./Source/FreeImage/GetType.cpp ./Source/FreeImage/LFPQuantizer.cpp ./Source/FreeImage/MemoryIO.cpp ./Source/FreeImage/PixelAccess.cpp ./Source/FreeImage/J2KHelper.cpp ./Source/FreeImage/MNGHelper.cpp ./Source/FreeImage/Plugin.cpp ./Source/FreeImage/PluginBMP.cpp ./Source/FreeImage/PluginCUT.cpp ./Source/FreeImage/PluginDDS.cpp ./Source/FreeImage/PluginEXR.cpp ./Source/FreeImage/PluginG3.cpp ./Source/FreeImage/PluginGIF.cpp ./Source/FreeImage/PluginHDR.cpp ./Source/FreeImage/PluginICO.cpp ./Source/FreeImage/PluginIFF.cpp ./Source/FreeImage/PluginJ2K.cpp ./Source/FreeImage/PluginJNG.cpp ./Source/FreeImage/PluginJP2.cpp ./Source/FreeImage/PluginJPEG.cpp ./Source/FreeImage/PluginJXR.cpp ./Source/FreeImage/PluginKOALA.cpp ./Source/FreeImage/PluginMNG.cpp ./Source/FreeImage/PluginPCD.cpp ./Source/FreeImage/PluginPCX.cpp ./Source/FreeImage/PluginPFM.cpp ./Source/FreeImage/PluginPICT.cpp ./Source/FreeImage/PluginPNG.cpp ./Source/FreeImage/PluginPNM.cpp ./Source/FreeImage/PluginPSD.cpp ./Source/FreeImage/PluginRAS.cpp ./Source/FreeImage/PluginRAW.cpp ./Source/FreeImage/PluginSGI.cpp ./Source/FreeImage/PluginTARGA.cpp ./Source/FreeImage/PluginTIFF.cpp ./Source/FreeImage/PluginWBMP.cpp ./Source/FreeImage/PluginWebP.cpp ./Source/FreeImage/PluginXBM.cpp ./Source/FreeImage/PluginXPM.cpp ./Source/FreeImage/PSDParser.cpp ./Source/FreeImage/TIFFLogLuv.cpp ./Source/FreeImage/Conversion.cpp ./Source/FreeImage/Conversion16_555.cpp ./Source/FreeImage/Conversion16_565.cpp ./Source/FreeImage/Conversion24.cpp ./Source/FreeImage/Conversion32.cpp ./Source/FreeImage/Conversion4.cpp ./Source/FreeImage/Conversion8.cpp ./Source/FreeImage/ConversionFloat.cpp ./Source/FreeImage/ConversionRGB16.cpp ./Source/FreeImage/ConversionRGBF.cpp ./Source/FreeImage/ConversionType.cpp ./Source/FreeImage/ConversionUINT16.cpp ./Source/FreeImage/Halftoning.cpp ./Source/FreeImage/tmoColorConvert.cpp ./Source/FreeImage/tmoDrago03.cpp ./Source/FreeImage/tmoFattal02.cpp ./Source/FreeImage/tmoReinhard05.cpp ./Source/FreeImage/ToneMapping.cpp ./Source/FreeImage/NNQuantizer.cpp ./Source/FreeImage/WuQuantizer.cpp ./Source/FreeImage/CacheFile.cpp ./Source/FreeImage/MultiPage.cpp ./Source/FreeImage/ZLibInterface.cpp ./Source/Metadata/Exif.cpp ./Source/Metadata/FIRational.cpp ./Source/Metadata/FreeImageTag.cpp ./Source/Metadata/IPTC.cpp ./Source/Metadata/TagConversion.cpp ./Source/Metadata/TagLib.cpp ./Source/Metadata/XTIFF.cpp ./Source/FreeImageToolkit/Background.cpp ./Source/FreeImageToolkit/BSplineRotate.cpp ./Source/FreeImageToolkit/Channels.cpp ./Source/FreeImageToolkit/ClassicRotate.cpp ./Source/FreeImageToolkit/Colors.cpp ./Source/FreeImageToolkit/CopyPaste.cpp ./Source/FreeImageToolkit/Display.cpp ./Source/FreeImageToolkit/Flip.cpp ./Source/FreeImageToolkit/JPEGTransform.cpp ./Source/FreeImageToolkit/MultigridPoissonSolver.cpp ./Source/FreeImageToolkit/Rescale.cpp ./Source/FreeImageToolkit/Resize.cpp Source/LibJPEG/jaricom.c Source/LibJPEG/jcapimin.c Source/LibJPEG/jcapistd.c Source/LibJPEG/jcarith.c Source/LibJPEG/jccoefct.c Source/LibJPEG/jccolor.c Source/LibJPEG/jcdctmgr.c Source/LibJPEG/jchuff.c Source/LibJPEG/jcinit.c Source/LibJPEG/jcmainct.c Source/LibJPEG/jcmarker.c Source/LibJPEG/jcmaster.c Source/LibJPEG/jcomapi.c Source/LibJPEG/jcparam.c Source/LibJPEG/jcprepct.c Source/LibJPEG/jcsample.c Source/LibJPEG/jctrans.c Source/LibJPEG/jdapimin.c Source/LibJPEG/jdapistd.c Source/LibJPEG/jdarith.c Source/LibJPEG/jdatadst.c Source/LibJPEG/jdatasrc.c Source/LibJPEG/jdcoefct.c Source/LibJPEG/jdcolor.c Source/LibJPEG/jddctmgr.c Source/LibJPEG/jdhuff.c Source/LibJPEG/jdinput.c Source/LibJPEG/jdmainct.c Source/LibJPEG/jdmarker.c Source/LibJPEG/jdmaster.c Source/LibJPEG/jdmerge.c Source/LibJPEG/jdpostct.c Source/LibJPEG/jdsample.c Source/LibJPEG/jdtrans.c Source/LibJPEG/jerror.c Source/LibJPEG/jfdctflt.c Source/LibJPEG/jfdctfst.c Source/LibJPEG/jfdctint.c Source/LibJPEG/jidctflt.c Source/LibJPEG/jidctfst.c Source/LibJPEG/jidctint.c Source/LibJPEG/jmemmgr.c Source/LibJPEG/jmemnobs.c Source/LibJPEG/jquant1.c Source/LibJPEG/jquant2.c Source/LibJPEG/jutils.c Source/LibJPEG/transupp.c Source/LibPNG/png.c Source/LibPNG/pngerror.c Source/LibPNG/pngget.c Source/LibPNG/pngmem.c Source/LibPNG/pngpread.c Source/LibPNG/pngread.c Source/LibPNG/pngrio.c Source/LibPNG/pngrtran.c Source/LibPNG/pngrutil.c Source/LibPNG/pngset.c Source/LibPNG/pngtrans.c Source/LibPNG/pngwio.c Source/LibPNG/pngwrite.c Source/LibPNG/pngwtran.c Source/LibPNG/pngwutil.c Source/LibTIFF4/tif_aux.c Source/LibTIFF4/tif_close.c Source/LibTIFF4/tif_codec.c Source/LibTIFF4/tif_color.c Source/LibTIFF4/tif_compress.c Source/LibTIFF4/tif_dir.c Source/LibTIFF4/tif_dirinfo.c Source/LibTIFF4/tif_dirread.c Source/LibTIFF4/tif_dirwrite.c Source/LibTIFF4/tif_dumpmode.c Source/LibTIFF4/tif_error.c Source/LibTIFF4/tif_extension.c Source/LibTIFF4/tif_fax3.c Source/LibTIFF4/tif_fax3sm.c Source/LibTIFF4/tif_flush.c Source/LibTIFF4/tif_getimage.c Source/LibTIFF4/tif_jpeg.c Source/LibTIFF4/tif_luv.c Source/LibTIFF4/tif_lzma.c Source/LibTIFF4/tif_lzw.c Source/LibTIFF4/tif_next.c Source/LibTIFF4/tif_ojpeg.c Source/LibTIFF4/tif_open.c Source/LibTIFF4/tif_packbits.c Source/LibTIFF4/tif_pixarlog.c Source/LibTIFF4/tif_predict.c Source/LibTIFF4/tif_print.c Source/LibTIFF4/tif_read.c Source/LibTIFF4/tif_strip.c Source/LibTIFF4/tif_swab.c Source/LibTIFF4/tif_thunder.c Source/LibTIFF4/tif_tile.c Source/LibTIFF4/tif_version.c Source/LibTIFF4/tif_warning.c Source/LibTIFF4/tif_write.c Source/LibTIFF4/tif_zip.c Source/ZLib/adler32.c Source/ZLib/compress.c Source/ZLib/crc32.c Source/ZLib/deflate.c Source/ZLib/gzclose.c Source/ZLib/gzlib.c Source/ZLib/gzread.c Source/ZLib/gzwrite.c Source/ZLib/infback.c Source/ZLib/inffast.c Source/ZLib/inflate.c Source/ZLib/inftrees.c Source/ZLib/trees.c Source/ZLib/uncompr.c Source/ZLib/zutil.c Source/LibOpenJPEG/bio.c Source/LibOpenJPEG/cio.c Source/LibOpenJPEG/dwt.c Source/LibOpenJPEG/event.c Source/LibOpenJPEG/function_list.c Source/LibOpenJPEG/image.c Source/LibOpenJPEG/invert.c Source/LibOpenJPEG/j2k.c Source/LibOpenJPEG/jp2.c Source/LibOpenJPEG/mct.c Source/LibOpenJPEG/mqc.c Source/LibOpenJPEG/openjpeg.c Source/LibOpenJPEG/opj_clock.c Source/LibOpenJPEG/pi.c Source/LibOpenJPEG/raw.c Source/LibOpenJPEG/t1.c Source/LibOpenJPEG/t2.c Source/LibOpenJPEG/tcd.c Source/LibOpenJPEG/tgt.c Source/OpenEXR/IexMath/IexMathFpu.cpp Source/OpenEXR/IlmImf/b44ExpLogTable.cpp Source/OpenEXR/IlmImf/ImfAcesFile.cpp Source/OpenEXR/IlmImf/ImfAttribute.cpp Source/OpenEXR/IlmImf/ImfB44Compressor.cpp Source/OpenEXR/IlmImf/ImfBoxAttribute.cpp Source/OpenEXR/IlmImf/ImfChannelList.cpp Source/OpenEXR/IlmImf/ImfChannelListAttribute.cpp Source/OpenEXR/IlmImf/ImfChromaticities.cpp Source/OpenEXR/IlmImf/ImfChromaticitiesAttribute.cpp Source/OpenEXR/IlmImf/ImfCompositeDeepScanLine.cpp Source/OpenEXR/IlmImf/ImfCompressionAttribute.cpp Source/OpenEXR/IlmImf/ImfCompressor.cpp Source/OpenEXR/IlmImf/ImfConvert.cpp Source/OpenEXR/IlmImf/ImfCRgbaFile.cpp Source/OpenEXR/IlmImf/ImfDeepCompositing.cpp Source/OpenEXR/IlmImf/ImfDeepFrameBuffer.cpp Source/OpenEXR/IlmImf/ImfDeepImageStateAttribute.cpp Source/OpenEXR/IlmImf/ImfDeepScanLineInputFile.cpp Source/OpenEXR/IlmImf/ImfDeepScanLineInputPart.cpp Source/OpenEXR/IlmImf/ImfDeepScanLineOutputFile.cpp Source/OpenEXR/IlmImf/ImfDeepScanLineOutputPart.cpp Source/OpenEXR/IlmImf/ImfDeepTiledInputFile.cpp Source/OpenEXR/IlmImf/ImfDeepTiledInputPart.cpp Source/OpenEXR/IlmImf/ImfDeepTiledOutputFile.cpp Source/OpenEXR/IlmImf/ImfDeepTiledOutputPart.cpp Source/OpenEXR/IlmImf/ImfDoubleAttribute.cpp Source/OpenEXR/IlmImf/ImfDwaCompressor.cpp Source/OpenEXR/IlmImf/ImfEnvmap.cpp Source/OpenEXR/IlmImf/ImfEnvmapAttribute.cpp Source/OpenEXR/IlmImf/ImfFastHuf.cpp Source/OpenEXR/IlmImf/ImfFloatAttribute.cpp Source/OpenEXR/IlmImf/ImfFloatVectorAttribute.cpp Source/OpenEXR/IlmImf/ImfFrameBuffer.cpp Source/OpenEXR/IlmImf/ImfFramesPerSecond.cpp Source/OpenEXR/IlmImf/ImfGenericInputFile.cpp Source/OpenEXR/IlmImf/ImfGenericOutputFile.cpp Source/OpenEXR/IlmImf/ImfHeader.cpp Source/OpenEXR/IlmImf/ImfHuf.cpp Source/OpenEXR/IlmImf/ImfInputFile.cpp Source/OpenEXR/IlmImf/ImfInputPart.cpp Source/OpenEXR/IlmImf/ImfInputPartData.cpp Source/OpenEXR/IlmImf/ImfIntAttribute.cpp Source/OpenEXR/IlmImf/ImfIO.cpp Source/OpenEXR/IlmImf/ImfKeyCode.cpp Source/OpenEXR/IlmImf/ImfKeyCodeAttribute.cpp Source/OpenEXR/IlmImf/ImfLineOrderAttribute.cpp Source/OpenEXR/IlmImf/ImfLut.cpp Source/OpenEXR/IlmImf/ImfMatrixAttribute.cpp Source/OpenEXR/IlmImf/ImfMisc.cpp Source/OpenEXR/IlmImf/ImfMultiPartInputFile.cpp Source/OpenEXR/IlmImf/ImfMultiPartOutputFile.cpp Source/OpenEXR/IlmImf/ImfMultiView.cpp Source/OpenEXR/IlmImf/ImfOpaqueAttribute.cpp Source/OpenEXR/IlmImf/ImfOutputFile.cpp Source/OpenEXR/IlmImf/ImfOutputPart.cpp Source/OpenEXR/IlmImf/ImfOutputPartData.cpp Source/OpenEXR/IlmImf/ImfPartType.cpp Source/OpenEXR/IlmImf/ImfPizCompressor.cpp Source/OpenEXR/IlmImf/ImfPreviewImage.cpp Source/OpenEXR/IlmImf/ImfPreviewImageAttribute.cpp Source/OpenEXR/IlmImf/ImfPxr24Compressor.cpp Source/OpenEXR/IlmImf/ImfRational.cpp Source/OpenEXR/IlmImf/ImfRationalAttribute.cpp Source/OpenEXR/IlmImf/ImfRgbaFile.cpp Source/OpenEXR/IlmImf/ImfRgbaYca.cpp Source/OpenEXR/IlmImf/ImfRle.cpp Source/OpenEXR/IlmImf/ImfRleCompressor.cpp Source/OpenEXR/IlmImf/ImfScanLineInputFile.cpp Source/OpenEXR/IlmImf/ImfStandardAttributes.cpp Source/OpenEXR/IlmImf/ImfStdIO.cpp Source/OpenEXR/IlmImf/ImfStringAttribute.cpp Source/OpenEXR/IlmImf/ImfStringVectorAttribute.cpp Source/OpenEXR/IlmImf/ImfSystemSpecific.cpp Source/OpenEXR/IlmImf/ImfTestFile.cpp Source/OpenEXR/IlmImf/ImfThreading.cpp Source/OpenEXR/IlmImf/ImfTileDescriptionAttribute.cpp Source/OpenEXR/IlmImf/ImfTiledInputFile.cpp Source/OpenEXR/IlmImf/ImfTiledInputPart.cpp Source/OpenEXR/IlmImf/ImfTiledMisc.cpp Source/OpenEXR/IlmImf/ImfTiledOutputFile.cpp Source/OpenEXR/IlmImf/ImfTiledOutputPart.cpp Source/OpenEXR/IlmImf/ImfTiledRgbaFile.cpp Source/OpenEXR/IlmImf/ImfTileOffsets.cpp Source/OpenEXR/IlmImf/ImfTimeCode.cpp Source/OpenEXR/IlmImf/ImfTimeCodeAttribute.cpp Source/OpenEXR/IlmImf/ImfVecAttribute.cpp Source/OpenEXR/IlmImf/ImfVersion.cpp Source/OpenEXR/IlmImf/ImfWav.cpp Source/OpenEXR/IlmImf/ImfZip.cpp Source/OpenEXR/IlmImf/ImfZipCompressor.cpp Source/OpenEXR/Imath/ImathBox.cpp Source/OpenEXR/Imath/ImathColorAlgo.cpp Source/OpenEXR/Imath/ImathFun.cpp Source/OpenEXR/Imath/ImathMatrixAlgo.cpp Source/OpenEXR/Imath/ImathRandom.cpp Source/OpenEXR/Imath/ImathShear.cpp Source/OpenEXR/Imath/ImathVec.cpp Source/OpenEXR/Iex/IexBaseExc.cpp Source/OpenEXR/Iex/IexThrowErrnoExc.cpp Source/OpenEXR/Half/half.cpp Source/OpenEXR/IlmThread/IlmThread.cpp Source/OpenEXR/IlmThread/IlmThreadMutex.cpp Source/OpenEXR/IlmThread/IlmThreadPool.cpp Source/OpenEXR/IlmThread/IlmThreadSemaphore.cpp Source/OpenEXR/IexMath/IexMathFloatExc.cpp Source/LibRawLite/internal/dcraw_common.cpp Source/LibRawLite/internal/dcraw_fileio.cpp Source/LibRawLite/internal/demosaic_packs.cpp Source/LibRawLite/src/libraw_c_api.cpp Source/LibRawLite/src/libraw_cxx.cpp Source/LibRawLite/src/libraw_datastream.cpp Source/LibWebP/src/dec/alpha_dec.c Source/LibWebP/src/dec/buffer_dec.c Source/LibWebP/src/dec/frame_dec.c Source/LibWebP/src/dec/idec_dec.c Source/LibWebP/src/dec/io_dec.c Source/LibWebP/src/dec/quant_dec.c Source/LibWebP/src/dec/tree_dec.c Source/LibWebP/src/dec/vp8l_dec.c Source/LibWebP/src/dec/vp8_dec.c Source/LibWebP/src/dec/webp_dec.c Source/LibWebP/src/demux/anim_decode.c Source/LibWebP/src/demux/demux.c Source/LibWebP/src/dsp/alpha_processing.c Source/LibWebP/src/dsp/alpha_processing_mips_dsp_r2.c Source/LibWebP/src/dsp/alpha_processing_neon.c Source/LibWebP/src/dsp/alpha_processing_sse2.c Source/LibWebP/src/dsp/alpha_processing_sse41.c Source/LibWebP/src/dsp/cost.c Source/LibWebP/src/dsp/cost_mips32.c Source/LibWebP/src/dsp/cost_mips_dsp_r2.c Source/LibWebP/src/dsp/cost_sse2.c Source/LibWebP/src/dsp/cpu.c Source/LibWebP/src/dsp/dec.c Source/LibWebP/src/dsp/dec_clip_tables.c Source/LibWebP/src/dsp/dec_mips32.c Source/LibWebP/src/dsp/dec_mips_dsp_r2.c Source/LibWebP/src/dsp/dec_msa.c Source/LibWebP/src/dsp/dec_neon.c Source/LibWebP/src/dsp/dec_sse2.c Source/LibWebP/src/dsp/dec_sse41.c Source/LibWebP/src/dsp/enc.c Source/LibWebP/src/dsp/enc_avx2.c Source/LibWebP/src/dsp/enc_mips32.c Source/LibWebP/src/dsp/enc_mips_dsp_r2.c Source/LibWebP/src/dsp/enc_msa.c Source/LibWebP/src/dsp/enc_neon.c Source/LibWebP/src/dsp/enc_sse2.c Source/LibWebP/src/dsp/enc_sse41.c Source/LibWebP/src/dsp/filters.c Source/LibWebP/src/dsp/filters_mips_dsp_r2.c Source/LibWebP/src/dsp/filters_msa.c Source/LibWebP/src/dsp/filters_neon.c Source/LibWebP/src/dsp/filters_sse2.c Source/LibWebP/src/dsp/lossless.c Source/LibWebP/src/dsp/lossless_enc.c Source/LibWebP/src/dsp/lossless_enc_mips32.c Source/LibWebP/src/dsp/lossless_enc_mips_dsp_r2.c Source/LibWebP/src/dsp/lossless_enc_msa.c Source/LibWebP/src/dsp/lossless_enc_neon.c Source/LibWebP/src/dsp/lossless_enc_sse2.c Source/LibWebP/src/dsp/lossless_enc_sse41.c Source/LibWebP/src/dsp/lossless_mips_dsp_r2.c Source/LibWebP/src/dsp/lossless_msa.c Source/LibWebP/src/dsp/lossless_neon.c Source/LibWebP/src/dsp/lossless_sse2.c Source/LibWebP/src/dsp/rescaler.c Source/LibWebP/src/dsp/rescaler_mips32.c Source/LibWebP/src/dsp/rescaler_mips_dsp_r2.c Source/LibWebP/src/dsp/rescaler_msa.c Source/LibWebP/src/dsp/rescaler_neon.c Source/LibWebP/src/dsp/rescaler_sse2.c Source/LibWebP/src/dsp/ssim.c Source/LibWebP/src/dsp/ssim_sse2.c Source/LibWebP/src/dsp/upsampling.c Source/LibWebP/src/dsp/upsampling_mips_dsp_r2.c Source/LibWebP/src/dsp/upsampling_msa.c Source/LibWebP/src/dsp/upsampling_neon.c Source/LibWebP/src/dsp/upsampling_sse2.c Source/LibWebP/src/dsp/upsampling_sse41.c Source/LibWebP/src/dsp/yuv.c Source/LibWebP/src/dsp/yuv_mips32.c Source/LibWebP/src/dsp/yuv_mips_dsp_r2.c Source/LibWebP/src/dsp/yuv_neon.c Source/LibWebP/src/dsp/yuv_sse2.c Source/LibWebP/src/dsp/yuv_sse41.c Source/LibWebP/src/enc/alpha_enc.c Source/LibWebP/src/enc/analysis_enc.c Source/LibWebP/src/enc/backward_references_cost_enc.c Source/LibWebP/src/enc/backward_references_enc.c Source/LibWebP/src/enc/config_enc.c Source/LibWebP/src/enc/cost_enc.c Source/LibWebP/src/enc/filter_enc.c Source/LibWebP/src/enc/frame_enc.c Source/LibWebP/src/enc/histogram_enc.c Source/LibWebP/src/enc/iterator_enc.c Source/LibWebP/src/enc/near_lossless_enc.c Source/LibWebP/src/enc/picture_csp_enc.c Source/LibWebP/src/enc/picture_enc.c Source/LibWebP/src/enc/picture_psnr_enc.c Source/LibWebP/src/enc/picture_rescale_enc.c Source/LibWebP/src/enc/picture_tools_enc.c Source/LibWebP/src/enc/predictor_enc.c Source/LibWebP/src/enc/quant_enc.c Source/LibWebP/src/enc/syntax_enc.c Source/LibWebP/src/enc/token_enc.c Source/LibWebP/src/enc/tree_enc.c Source/LibWebP/src/enc/vp8l_enc.c Source/LibWebP/src/enc/webp_enc.c Source/LibWebP/src/mux/anim_encode.c Source/LibWebP/src/mux/muxedit.c Source/LibWebP/src/mux/muxinternal.c Source/LibWebP/src/mux/muxread.c Source/LibWebP/src/utils/bit_reader_utils.c Source/LibWebP/src/utils/bit_writer_utils.c Source/LibWebP/src/utils/color_cache_utils.c Source/LibWebP/src/utils/filters_utils.c Source/LibWebP/src/utils/huffman_encode_utils.c Source/LibWebP/src/utils/huffman_utils.c Source/LibWebP/src/utils/quant_levels_dec_utils.c Source/LibWebP/src/utils/quant_levels_utils.c Source/LibWebP/src/utils/random_utils.c Source/LibWebP/src/utils/rescaler_utils.c Source/LibWebP/src/utils/thread_utils.c Source/LibWebP/src/utils/utils.c Source/LibJXR/image/decode/decode.c Source/LibJXR/image/decode/JXRTranscode.c Source/LibJXR/image/decode/postprocess.c Source/LibJXR/image/decode/segdec.c Source/LibJXR/image/decode/strdec.c Source/LibJXR/image/decode/strdec_x86.c Source/LibJXR/image/decode/strInvTransform.c Source/LibJXR/image/decode/strPredQuantDec.c Source/LibJXR/image/encode/encode.c Source/LibJXR/image/encode/segenc.c Source/LibJXR/image/encode/strenc.c Source/LibJXR/image/encode/strenc_x86.c Source/LibJXR/image/encode/strFwdTransform.c Source/LibJXR/image/encode/strPredQuantEnc.c Source/LibJXR/image/sys/adapthuff.c Source/LibJXR/image/sys/image.c Source/LibJXR/image/sys/strcodec.c Source/LibJXR/image/sys/strPredQuant.c Source/LibJXR/image/sys/strTransform.c Source/LibJXR/jxrgluelib/JXRGlue.c Source/LibJXR/jxrgluelib/JXRGlueJxr.c Source/LibJXR/jxrgluelib/JXRGluePFC.c Source/LibJXR/jxrgluelib/JXRMeta.c)
+
+add_library(${PROJECT_NAME}   ${SOURCE_FILES})
+#add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+#add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
+
+#set(${PROJECT_NAME}_INCLUDE_DIR_TT ${CMAKE_CURRENT_SOURCE_DIR}/Source)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_INCLUDE_DIR_TT})
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/Source  ${CMAKE_SOURCE_DIR}/include )
+
 
 #-------- binary ----------------------------------------------------
-add_library( FreeImage ${cpp_SOURCES} )
+#add_library( FreeImage SHARED ${cpp_SOURCES} )
+#add_library( FreeImage STATIC ${cpp_SOURCES} )
 #target_include_directories( FreeImage INTERFACE freeimage/Source )
 target_include_directories( FreeImage PRIVATE ${cpp_INCLUDES} )
-target_compile_definitions( FreeImage PUBLIC -DFREEIMAGE_LIB )
+#target_compile_definitions( FreeImage PUBLIC -DFREEIMAGE_LIB )
 target_compile_definitions( FreeImage PRIVATE -DNO_LCMS -D__ANSI__ -DDISABLE_PERF_MEASUREMENT )
-target_compile_options( FreeImage PRIVATE -Wno-switch -Wno-bitwise-op-parentheses -Wno-logical-op-parentheses )
+#target_compile_options( FreeImage PRIVATE -Wno-switch -Wno-bitwise-op-parentheses -Wno-logical-op-parentheses )
 
 if( CMAKE_SYSTEM_NAME MATCHES "Android" )
-	target_compile_definitions( FreeImage PRIVATE -DPNG_ARM_NEON_OPT=0 )
+    target_compile_definitions( FreeImage PRIVATE -DPNG_ARM_NEON_OPT=0 )
 endif()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #-------------------install  destation ---------------------------
 #set( DESTINATION  "../install/")
-set(CMAKE_INSTALL_PREFIX "../install_FreeImage_VC14/")
+#set(CMAKE_INSTALL_PREFIX "../install_FreeImage_VC14/")
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/../${PROJECT_NAME}_${CMAKE_CXX_COMPILER_VERSION}_install)
+
+
 #          And to the end of the top-level CMakeLists.txt we add:
 #install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 #install(FILES "${PROJECT_BINARY_DIR}/TutorialConfig.h"  DESTINATION include  )
 
 
-if (1)
-    #
-    # Format the project using the `clang-format` target (i.e: cmake --build build --target clang-format)
-    #
+#if (1)
+#
+# Format the project using the `clang-format` target (i.e: cmake --build build --target clang-format)
+#
 
-    #add_clang_format_target()
+#add_clang_format_target()
 
-    #
-    # Install library for easy downstream inclusion
-    #
+#
+# Install library for easy downstream inclusion
+#
 
-    include(GNUInstallDirs)
+include(GNUInstallDirs)
+install(
+    TARGETS  ${PROJECT_NAME}
+    EXPORT  ${PROJECT_NAME}Targets
+    LIBRARY DESTINATION  ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION  ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION    ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION   include
+    PUBLIC_HEADER DESTINATION   include
+)
+
+install(  EXPORT  ${PROJECT_NAME}Targets  FILE  ${PROJECT_NAME}Targets.cmake
+    NAMESPACE  ${PROJECT_NAME}::
+    DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+#
+# Add version header
+#
+
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/version.hpp.in
+    include/${PROJECT_NAME_LOWERCASE}/version.hpp
+    @ONLY
+)
+
+install(   FILES  ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME_LOWERCASE}/version.hpp
+    DESTINATION   include/${PROJECT_NAME_LOWERCASE}
+)
+
+#
+# Install the `include` directory
+#
+
+#install(
+#    DIRECTORY
+##    include/${PROJECT_NAME_LOWERCASE}
+#    BasicDef/${PROJECT_NAME_LOWERCASE}
+#     exportApi/${PROJECT_NAME_LOWERCASE}
+#     DESTINATION
+#    include
+#    )
+
+install(
+    FILES    include/FreeImage.h
+    DESTINATION include/
+)
+
+
+#verbose_message("Install targets succesfully build. Install with `cmake --build <build_directory> --target install --config <build_config>`.")
+
+#
+# Quick `ConfigVersion.cmake` creation
+#
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${PROJECT_NAME}ConfigVersion.cmake
+    VERSION  ${PROJECT_VERSION}
+    COMPATIBILITY  SameMajorVersion
+)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION   ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+install(
+    FILES  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+#
+# Generate export header if specified
+#
+
+if (${PROJECT_NAME}_GENERATE_EXPORT_HEADER)
+    include(GenerateExportHeader)
+    generate_export_header(${PROJECT_NAME})
     install(
-        TARGETS
-        ${PROJECT_NAME}
-        EXPORT
-        ${PROJECT_NAME}Targets
-        LIBRARY DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION
-        ${CMAKE_INSTALL_BINDIR}
-        ARCHIVE DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION
-        include
-        PUBLIC_HEADER DESTINATION
-        include
-        )
-
-    install(
-        EXPORT
-        ${PROJECT_NAME}Targets
-        FILE
-        ${PROJECT_NAME}Targets.cmake
-        NAMESPACE
-        ${PROJECT_NAME}::
-        DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-        )
-
-    #
-    # Add version header
-    #
-
-    configure_file(
-        ${CMAKE_CURRENT_LIST_DIR}/cmake/version.hpp.in
-        include/${PROJECT_NAME_LOWERCASE}/version.hpp
-        @ONLY
-        )
-
-    install(
-        FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME_LOWERCASE}/version.hpp
-        DESTINATION
-        include/${PROJECT_NAME_LOWERCASE}
-        )
-
-    #
-    # Install the `include` directory
-    #
-
-    #install(
-    #    DIRECTORY
-    ##    include/${PROJECT_NAME_LOWERCASE}
-    #    BasicDef/${PROJECT_NAME_LOWERCASE}
-    #     exportApi/${PROJECT_NAME_LOWERCASE}
-    #     DESTINATION
-    #    include
-    #    )
-
-    install(
-        FILES
-        #    include/${PROJECT_NAME_LOWERCASE}
-        #  inc/SOIL/image_DXT.h
-        #  inc/SOIL/image_helper.h
-        #  inc/SOIL/SOIL.h
-        #  inc/SOIL/stb_image_aug.h
-        #  inc/SOIL/stbi_DDS_aug_c.h
-        #  inc/SOIL/stbi_DDS_aug.h
-        freeimage/Source/FreeImage.h
-        #  exportApi/${PROJECT_NAME_LOWERCASE}/api_vision.h
-        #     exportApi/${PROJECT_NAME_LOWERCASE}
-        DESTINATION
-        include/
-        )
-
-
-    #verbose_message("Install targets succesfully build. Install with `cmake --build <build_directory> --target install --config <build_config>`.")
-
-    #
-    # Quick `ConfigVersion.cmake` creation
-    #
-
-    include(CMakePackageConfigHelpers)
-    write_basic_package_version_file(
-        ${PROJECT_NAME}ConfigVersion.cmake
-        VERSION
-        ${PROJECT_VERSION}
-        COMPATIBILITY
-        SameMajorVersion
-        )
-
-    configure_package_config_file(
-        ${CMAKE_CURRENT_LIST_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-        INSTALL_DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-        )
-
-    install(
-        FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-        )
-
-    #
-    # Generate export header if specified
-    #
-
-    if (${PROJECT_NAME}_GENERATE_EXPORT_HEADER)
-        include(GenerateExportHeader)
-        generate_export_header(${PROJECT_NAME})
-        install(
-            FILES
-            ${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWERCASE}_export.h
-            DESTINATION
-            include
-            )
-        message(STATUS "Generated the export header `${PROJECT_NAME_LOWERCASE}_export.h` and installed it.")
-    endif ()
-
-    message(STATUS "Finished building requirements for installing the package.\n")
-
-    #
-    # Unit testing setup
-    #
-    if (0)
-        if (${PROJECT_NAME}_ENABLE_UNIT_TESTING)
-            enable_testing()
-            message(STATUS "Build unit tests for the project. Tests should always be found in the test folder\n")
-            add_subdirectory(test)
-        endif ()
-    endif ()
-
-
+        FILES  ${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWERCASE}_export.h
+        DESTINATION  include
+    )
+message(STATUS "Generated the export header `${PROJECT_NAME_LOWERCASE}_export.h` and installed it.")
 endif ()
+
+message(STATUS "Finished building requirements for installing the package.\n")
+
+#    #
+#    # Unit testing setup
+#    #
+#    if (0)
+#        if (${PROJECT_NAME}_ENABLE_UNIT_TESTING)
+#            enable_testing()
+#            message(STATUS "Build unit tests for the project. Tests should always be found in the test folder\n")
+#            add_subdirectory(test)
+#        endif ()
+#    endif ()
+
+
+#endif ()
 
 
 
